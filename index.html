@@ -1048,8 +1048,6 @@
       els.clearDraftBtn.addEventListener('click', clearDraft);
       els.createPlaylistBtn.addEventListener('click', createPlaylist);
 
-      els.clientId.addEventListener('input', setButtonStates);
-
       els.candidateList.addEventListener('click', event => {
         const button = event.target.closest('[data-pick-uri]');
         if (!button) return;
