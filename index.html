@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liked Song Playlist Picker</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #121923;
+      --panel-2: #182231;
+      --text: #edf2f7;
+      --muted: #9fb0c3;
+      --accent: #1ed760;
+      --accent-2: #16b34f;
+      --danger: #ff6b6b;
+      --border: rgba(255,255,255,0.08);
+      --shadow: 0 18px 48px rgba(0,0,0,0.28);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(30,215,96,0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(55,125,255,0.14), transparent 24%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.45;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(30,215,96,0.12);
+      color: #c8ffd9;
+      border: 1px solid rgba(30,215,96,0.18);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      max-width: 850px;
+    }
+
+    .sub {
+      margin: 0;
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 370px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(12px);
+    }
+
+    .card + .card { margin-top: 18px; }
+
+    .section-title {
+      margin: 0 0 6px;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-text {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .row {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .split { grid-template-columns: 1fr; }
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px 13px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.12s ease;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: rgba(30,215,96,0.55);
+      background: rgba(255,255,255,0.06);
+    }
+
+    textarea { min-height: 96px; resize: vertical; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.2s ease, background 0.2s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .primary {
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      color: #04120a;
+    }
+
+    .secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .danger {
+      background: rgba(255,107,107,0.12);
+      color: #ffd0d0;
+      border: 1px solid rgba(255,107,107,0.18);
+    }
+
+    .tiny {
+      padding: 8px 11px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .notice {
+      margin-top: 12px;
+      padding: 13px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .notice strong { color: var(--text); }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      min-height: 20px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(30,215,96,0.12);
+      flex: 0 0 auto;
+    }
+
+    .dot.warn {
+      background: #ffd166;
+      box-shadow: 0 0 0 4px rgba(255,209,102,0.12);
+    }
+
+    .dot.error {
+      background: #ff6b6b;
+      box-shadow: 0 0 0 4px rgba(255,107,107,0.12);
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 680px) {
+      .summary { grid-template-columns: 1fr; }
+    }
+
+    .stat {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .playlist-list, .candidate-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .track {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .track img {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .track-title {
+      margin: 0 0 4px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .track-meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .track-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: end;
+    }
+
+    .empty {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px dashed rgba(255,255,255,0.12);
+      color: var(--muted);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar .controls {
+      justify-content: end;
+    }
+
+    a {
+      color: #8edcff;
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    .hidden { display: none !important; }
+
+    .footer-note {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="pill">Spotify liked song playlist picker</div>
+      <h1>Build a playlist by choosing a song from 5 random liked tracks at a time.</h1>
+      <p class="sub">Sign in with Spotify, get a selection of 5 random songs from your liked library, pick one, and keep going the playlist is done.</p>
+    </div>
+
+    <div class="grid">
+      <aside>
+        <div class="card">
+          <h2 class="section-title">App settings</h2>
+          <p class="section-text">Use your own Spotify app Client ID. This page works with Spotify's authorisation flow, so no password is needed.</p>
+
+          <div class="row">
+            <label>
+              Spotify Client ID
+              <input id="clientId" type="text" placeholder="Paste your Spotify Client ID" />
+            </label>
+          </div>
+
+          <div class="controls">
+            <button id="saveSettingsBtn" class="secondary">Save settings</button>
+            <button id="signInBtn" class="primary">Sign in with Spotify</button>
+            <button id="signOutBtn" class="secondary hidden">Sign out</button>
+          </div>
+
+          <div id="authStatus" class="status"></div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title">Playlist draft</h2>
+          <p class="section-text">These settings control the playlist that will be created once you are happy with the selections.</p>
+
+          <div class="row">
+            <label>
+              Playlist name
+              <input id="playlistName" type="text" placeholder="Liked Song Roulette" />
+            </label>
+
+            <label>
+              Description
+              <textarea id="playlistDescription" placeholder="Built by choosing one song from 5 random liked tracks at a time."></textarea>
+            </label>
+
+            <div class="split">
+              <label>
+                Visibility
+                <select id="playlistVisibility">
+                  <option value="private" selected>Private</option>
+                  <option value="public">Public</option>
+                </select>
+              </label>
+
+              <label>
+                Duplicate rule
+                <select id="duplicateRule">
+                  <option value="avoid" selected>Avoid repeats</option>
+                  <option value="allow">Allow repeats after full pass</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button id="createPlaylistBtn" class="primary" disabled>Create playlist in Spotify</button>
+            <button id="clearDraftBtn" class="secondary" disabled>Clear draft</button>
+          </div>
+
+          <div id="createStatus" class="status"></div>
+        </div>
+      </aside>
+
+      <main>
+        <div class="card">
+          <div class="toolbar">
+            <div>
+              <h2 class="section-title" style="margin-bottom: 4px;">Session</h2>
+              <p class="section-text" style="margin-bottom: 0;">Sign in to load your liked songs and start drawing random choices.</p>
+            </div>
+            <div class="controls">
+              <button id="loadBtn" class="secondary" disabled>Load liked songs</button>
+              <button id="newRoundBtn" class="secondary" disabled>Draw 5 random songs</button>
+            </div>
+          </div>
+
+          <div class="summary">
+            <div class="stat">
+              <div class="stat-label">Liked songs</div>
+              <div id="totalLiked" class="stat-value">-</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Draft size</div>
+              <div id="draftCount" class="stat-value">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Songs surfaced</div>
+              <div id="seenCount" class="stat-value">0</div>
+            </div>
+          </div>
+
+          <div id="roundStatus" class="status"></div>
+        </div>
+
+        <div class="card">
+          <div class="toolbar">
+            <div>
+              <h2 class="section-title" style="margin-bottom: 4px;">Current hand</h2>
+              <p class="section-text" style="margin-bottom: 0;">Choose one song to add to the draft playlist, or redraw a fresh set.</p>
+            </div>
+          </div>
+          <div id="candidateList" class="candidate-list">
+            <div class="empty">No songs shown yet. Sign in, load your library, then draw 5 random liked songs.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="toolbar">
+            <div>
+              <h2 class="section-title" style="margin-bottom: 4px;">Draft playlist</h2>
+              <p class="section-text" style="margin-bottom: 0;">Keep picking until the playlist looks right, then create it in Spotify.</p>
+            </div>
+          </div>
+          <div id="playlistList" class="playlist-list">
+            <div class="empty">Your selected songs will appear here.</div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEYS = {
+      settings: 'spotify_picker_settings_v1',
+      codeVerifier: 'spotify_picker_code_verifier',
+      state: 'spotify_picker_oauth_state',
+      token: 'spotify_picker_token_v1',
+    };
+
+    const SCOPES = [
+      'user-library-read',
+      'playlist-modify-private',
+      'playlist-modify-public'
+    ].join(' ');
+
+    const state = {
+      token: null,
+      totalLiked: null,
+      selectedTracks: [],
+      selectedUris: new Set(),
+      surfacedOffsets: new Set(),
+      surfacedThisSession: 0,
+      currentCandidates: [],
+      loading: false,
+      creating: false,
+    };
+
+    const els = {
+      clientId: document.getElementById('clientId'),
+      saveSettingsBtn: document.getElementById('saveSettingsBtn'),
+      signInBtn: document.getElementById('signInBtn'),
+      signOutBtn: document.getElementById('signOutBtn'),
+      authStatus: document.getElementById('authStatus'),
+      playlistName: document.getElementById('playlistName'),
+      playlistDescription: document.getElementById('playlistDescription'),
+      playlistVisibility: document.getElementById('playlistVisibility'),
+      duplicateRule: document.getElementById('duplicateRule'),
+      createPlaylistBtn: document.getElementById('createPlaylistBtn'),
+      clearDraftBtn: document.getElementById('clearDraftBtn'),
+      createStatus: document.getElementById('createStatus'),
+      loadBtn: document.getElementById('loadBtn'),
+      newRoundBtn: document.getElementById('newRoundBtn'),
+      totalLiked: document.getElementById('totalLiked'),
+      draftCount: document.getElementById('draftCount'),
+      seenCount: document.getElementById('seenCount'),
+      roundStatus: document.getElementById('roundStatus'),
+      candidateList: document.getElementById('candidateList'),
+      playlistList: document.getElementById('playlistList'),
+    };
+
+    function defaultPlaylistName() {
+      const now = new Date();
+      return `Liked Song Roulette ${now.toISOString().slice(0, 10)}`;
+    }
+
+    function loadSettings() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.settings) || '{}');
+        els.clientId.value = saved.clientId || '';
+      } catch {
+      }
+      if (!els.playlistName.value) els.playlistName.value = defaultPlaylistName();
+      if (!els.playlistDescription.value) {
+        els.playlistDescription.value = 'Built by choosing one song from 5 random liked tracks at a time.';
+      }
+    }
+
+    function saveSettings() {
+      const settings = getSettings();
+      localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
+      setStatus(els.authStatus, 'Settings saved locally in this browser.', 'ok');
+    }
+
+    function getSettings() {
+      return {
+        clientId: els.clientId.value.trim(),
+        redirectUri: "https://matta-dev.github.io/spotify-playlist/",
+      };
+    }
+
+    function setStatus(target, message, kind = 'ok') {
+      if (!message) {
+        target.innerHTML = '';
+        return;
+      }
+      const dotClass = kind === 'error' ? 'dot error' : (kind === 'warn' ? 'dot warn' : 'dot');
+      target.innerHTML = `<span class="${dotClass}"></span><span>${message}</span>`;
+    }
+
+    function setButtonStates() {
+      const signedIn = !!state.token?.access_token;
+      const canUseLibrary = signedIn && !state.loading;
+      const hasDraft = state.selectedTracks.length > 0;
+      const hasLibrary = Number.isInteger(state.totalLiked) && state.totalLiked > 0;
+      const settingsReady = !!getSettings().clientId && !!getSettings().redirectUri;
+
+      els.signInBtn.disabled = !settingsReady;
+      els.signOutBtn.classList.toggle('hidden', !signedIn);
+      els.loadBtn.disabled = !canUseLibrary;
+      els.newRoundBtn.disabled = !canUseLibrary || !hasLibrary;
+      els.createPlaylistBtn.disabled = !signedIn || !hasDraft || state.creating;
+      els.clearDraftBtn.disabled = !hasDraft;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function formatArtists(track) {
+      return (track.artists || []).map(a => a.name).join(', ');
+    }
+
+    function albumImage(track) {
+      return track.album?.images?.[0]?.url || '';
+    }
+
+    function millisToTime(ms) {
+      const totalSeconds = Math.round((ms || 0) / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    }
+
+    async function sha256(plain) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(plain);
+      return window.crypto.subtle.digest('SHA-256', data);
+    }
+
+    function base64UrlEncode(arrayBuffer) {
+      const bytes = new Uint8Array(arrayBuffer);
+      let str = '';
+      for (const byte of bytes) str += String.fromCharCode(byte);
+      return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+    }
+
+    function randomString(length) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      const randomValues = new Uint8Array(length);
+      window.crypto.getRandomValues(randomValues);
+      return Array.from(randomValues, v => chars[v % chars.length]).join('');
+    }
+
+    async function generateCodeChallenge(codeVerifier) {
+      return base64UrlEncode(await sha256(codeVerifier));
+    }
+
+    async function startAuth() {
+      const { clientId, redirectUri } = getSettings();
+      if (!clientId) {
+        setStatus(els.authStatus, 'Enter a Client ID first.', 'error');
+        return;
+      }
+      saveSettings();
+      const codeVerifier = randomString(64);
+      const stateValue = randomString(24);
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      localStorage.setItem(STORAGE_KEYS.codeVerifier, codeVerifier);
+      localStorage.setItem(STORAGE_KEYS.state, stateValue);
+
+      const authUrl = new URL('https://accounts.spotify.com/authorize');
+      authUrl.search = new URLSearchParams({
+        client_id: clientId,
+        response_type: 'code',
+        redirect_uri: redirectUri,
+        scope: SCOPES,
+        code_challenge_method: 'S256',
+        code_challenge: codeChallenge,
+        state: stateValue,
+      }).toString();
+
+      window.location.href = authUrl.toString();
+    }
+
+    function saveToken(tokenResponse) {
+      const token = {
+        access_token: tokenResponse.access_token,
+        refresh_token: tokenResponse.refresh_token || state.token?.refresh_token || null,
+        expires_at: Date.now() + ((tokenResponse.expires_in || 3600) * 1000),
+        scope: tokenResponse.scope || SCOPES,
+      };
+      state.token = token;
+      localStorage.setItem(STORAGE_KEYS.token, JSON.stringify(token));
+      setButtonStates();
+    }
+
+    function loadStoredToken() {
+      try {
+        const token = JSON.parse(localStorage.getItem(STORAGE_KEYS.token) || 'null');
+        if (token?.access_token) state.token = token;
+      } catch {
+        state.token = null;
+      }
+    }
+
+    function clearToken() {
+      state.token = null;
+      localStorage.removeItem(STORAGE_KEYS.token);
+      localStorage.removeItem(STORAGE_KEYS.codeVerifier);
+      localStorage.removeItem(STORAGE_KEYS.state);
+      state.totalLiked = null;
+      state.currentCandidates = [];
+      renderCandidates();
+      setStatus(els.authStatus, 'Signed out.', 'warn');
+      setStatus(els.roundStatus, '', 'ok');
+      setButtonStates();
+      updateStats();
+    }
+
+    async function exchangeCodeForToken(code) {
+      const { clientId, redirectUri } = getSettings();
+      const codeVerifier = localStorage.getItem(STORAGE_KEYS.codeVerifier);
+      if (!codeVerifier) throw new Error('Missing stored PKCE code verifier. Start sign-in again.');
+
+      const response = await fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          client_id: clientId,
+          grant_type: 'authorization_code',
+          code,
+          redirect_uri: redirectUri,
+          code_verifier: codeVerifier,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error_description || data.error || 'Failed to exchange authorization code.');
+      }
+      saveToken(data);
+      localStorage.removeItem(STORAGE_KEYS.codeVerifier);
+      localStorage.removeItem(STORAGE_KEYS.state);
+    }
+
+    async function refreshAccessToken() {
+      if (!state.token?.refresh_token) {
+        throw new Error('No refresh token available. Please sign in again.');
+      }
+      const { clientId } = getSettings();
+      const response = await fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          client_id: clientId,
+          grant_type: 'refresh_token',
+          refresh_token: state.token.refresh_token,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error_description || data.error || 'Failed to refresh access token.');
+      }
+      saveToken(data);
+    }
+
+    async function getValidAccessToken() {
+      if (!state.token?.access_token) throw new Error('You are not signed in.');
+      const expiresSoon = !state.token.expires_at || Date.now() > (state.token.expires_at - 60 * 1000);
+      if (expiresSoon) {
+        await refreshAccessToken();
+      }
+      return state.token.access_token;
+    }
+
+    async function spotifyFetch(path, options = {}) {
+      const token = await getValidAccessToken();
+      let response = await fetch(`https://api.spotify.com/v1${path}`, {
+        ...options,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          ...(options.headers || {}),
+        },
+      });
+
+      if (response.status === 401 && state.token?.refresh_token) {
+        await refreshAccessToken();
+        const retriedToken = await getValidAccessToken();
+        response = await fetch(`https://api.spotify.com/v1${path}`, {
+          ...options,
+          headers: {
+            Authorization: `Bearer ${retriedToken}`,
+            'Content-Type': 'application/json',
+            ...(options.headers || {}),
+          },
+        });
+      }
+
+      if (!response.ok) {
+        let detail = response.statusText;
+        try {
+          const body = await response.json();
+          detail = body?.error?.message || body?.error_description || body?.error || detail;
+        } catch {
+          // Ignore JSON parse failure.
+        }
+        throw new Error(`${response.status}: ${detail}`);
+      }
+
+      if (response.status === 204) return null;
+      return response.json();
+    }
+
+    async function handleAuthRedirect() {
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get('code');
+      const returnedState = url.searchParams.get('state');
+      const error = url.searchParams.get('error');
+      const expectedState = localStorage.getItem(STORAGE_KEYS.state);
+
+      if (error) {
+        setStatus(els.authStatus, `Spotify sign-in failed: ${error}`, 'error');
+        return;
+      }
+
+      if (!code) return;
+      if (!returnedState || returnedState !== expectedState) {
+        setStatus(els.authStatus, 'State mismatch during login. Please try again.', 'error');
+        return;
+      }
+
+      try {
+        setStatus(els.authStatus, 'Finishing Spotify sign-in…', 'ok');
+        await exchangeCodeForToken(code);
+        setStatus(els.authStatus, 'Signed in to Spotify.', 'ok');
+      } catch (err) {
+        setStatus(els.authStatus, err.message, 'error');
+      } finally {
+        url.searchParams.delete('code');
+        url.searchParams.delete('state');
+        url.searchParams.delete('error');
+        history.replaceState({}, document.title, url.toString());
+      }
+    }
+
+    async function loadLikedSongCount() {
+      state.loading = true;
+      setButtonStates();
+      setStatus(els.roundStatus, 'Loading your liked songs…', 'ok');
+      try {
+        const data = await spotifyFetch('/me/tracks?limit=1');
+        state.totalLiked = data.total || 0;
+        if (!state.totalLiked) {
+          setStatus(els.roundStatus, 'No liked songs found in this account.', 'warn');
+        } else {
+          setStatus(els.roundStatus, `Loaded your library. ${state.totalLiked} liked song${state.totalLiked === 1 ? '' : 's'} available.`, 'ok');
+        }
+      } catch (err) {
+        setStatus(els.roundStatus, err.message, 'error');
+      } finally {
+        state.loading = false;
+        updateStats();
+        setButtonStates();
+      }
+    }
+
+    async function getSavedTrackAtOffset(offset) {
+      const data = await spotifyFetch(`/me/tracks?limit=1&offset=${offset}`);
+      return data.items?.[0] || null;
+    }
+
+    function randomOffset(maxExclusive) {
+      return Math.floor(Math.random() * maxExclusive);
+    }
+
+    async function drawCandidates() {
+      if (!Number.isInteger(state.totalLiked) || state.totalLiked <= 0) {
+        setStatus(els.roundStatus, 'Load your liked songs first.', 'warn');
+        return;
+      }
+
+      state.loading = true;
+      setButtonStates();
+      setStatus(els.roundStatus, 'Drawing 5 random liked songs…', 'ok');
+
+      try {
+        const countNeeded = Math.min(5, state.totalLiked);
+        const duplicateRule = els.duplicateRule.value;
+        const usedOffsets = new Set();
+        const candidateOffsets = [];
+        let attempts = 0;
+        const maxAttempts = Math.max(200, state.totalLiked * 4);
+
+        while (candidateOffsets.length < countNeeded && attempts < maxAttempts) {
+          attempts += 1;
+
+          if (duplicateRule === 'allow' && state.surfacedOffsets.size >= state.totalLiked) {
+            state.surfacedOffsets.clear();
+          }
+
+          const offset = randomOffset(state.totalLiked);
+          if (usedOffsets.has(offset)) continue;
+          if (duplicateRule === 'avoid' && state.surfacedOffsets.has(offset)) continue;
+          usedOffsets.add(offset);
+          candidateOffsets.push(offset);
+        }
+
+        if (!candidateOffsets.length) {
+          if (duplicateRule === 'avoid') {
+            setStatus(els.roundStatus, 'You have already surfaced every liked song once. Clear the draft or switch duplicate rule to allow repeats after a full pass.', 'warn');
+          } else {
+            setStatus(els.roundStatus, 'Could not draw any candidates. Try again.', 'warn');
+          }
+          state.currentCandidates = [];
+          renderCandidates();
+          return;
+        }
+
+        const results = await Promise.all(candidateOffsets.map(getSavedTrackAtOffset));
+        const tracks = [];
+        for (let i = 0; i < results.length; i += 1) {
+          const saved = results[i];
+          if (!saved?.track?.uri) continue;
+          if (state.selectedUris.has(saved.track.uri)) continue;
+          tracks.push({
+            savedAt: saved.added_at,
+            track: saved.track,
+            offset: candidateOffsets[i],
+          });
+        }
+
+        state.currentCandidates = tracks;
+        for (const item of tracks) {
+          if (!state.surfacedOffsets.has(item.offset)) {
+            state.surfacedOffsets.add(item.offset);
+            state.surfacedThisSession += 1;
+          }
+        }
+
+        renderCandidates();
+        updateStats();
+        if (tracks.length) {
+          setStatus(els.roundStatus, 'Pick one song to add it to the draft playlist, or redraw for another set.', 'ok');
+        } else {
+          setStatus(els.roundStatus, 'All drawn songs were already in your draft. Try another round.', 'warn');
+        }
+      } catch (err) {
+        setStatus(els.roundStatus, err.message, 'error');
+      } finally {
+        state.loading = false;
+        setButtonStates();
+      }
+    }
+
+    function addTrackFromCandidates(uri) {
+      const found = state.currentCandidates.find(item => item.track.uri === uri);
+      if (!found) return;
+      if (state.selectedUris.has(uri)) {
+        setStatus(els.roundStatus, 'That track is already in the draft playlist.', 'warn');
+        return;
+      }
+      state.selectedTracks.push(found.track);
+      state.selectedUris.add(uri);
+      renderDraft();
+      updateStats();
+      setButtonStates();
+      setStatus(els.roundStatus, `Added “${found.track.name}”. Draw another hand when you're ready.`, 'ok');
+      drawCandidates();
+    }
+
+    function removeTrack(uri) {
+      state.selectedTracks = state.selectedTracks.filter(track => track.uri !== uri);
+      state.selectedUris.delete(uri);
+      renderDraft();
+      updateStats();
+      setButtonStates();
+      setStatus(els.roundStatus, 'Removed track from the draft playlist.', 'warn');
+    }
+
+    function clearDraft() {
+      state.selectedTracks = [];
+      state.selectedUris.clear();
+      renderDraft();
+      updateStats();
+      setButtonStates();
+      setStatus(els.roundStatus, 'Draft playlist cleared.', 'warn');
+    }
+
+    function updateStats() {
+      els.totalLiked.textContent = Number.isInteger(state.totalLiked) ? state.totalLiked.toLocaleString() : '-';
+      els.draftCount.textContent = state.selectedTracks.length.toLocaleString();
+      els.seenCount.textContent = state.surfacedThisSession.toLocaleString();
+    }
+
+    function renderCandidates() {
+      if (!state.currentCandidates.length) {
+        els.candidateList.innerHTML = '<div class="empty">No songs shown yet. Sign in, load your library, then draw 5 random liked songs.</div>';
+        return;
+      }
+
+      els.candidateList.innerHTML = state.currentCandidates.map(item => {
+        const track = item.track;
+        const image = albumImage(track);
+        const previewButton = track.external_urls?.spotify
+          ? `<a class="tiny secondary" href="${escapeHtml(track.external_urls.spotify)}" target="_blank" rel="noreferrer">Open in Spotify</a>`
+          : '';
+
+        return `
+          <div class="track">
+            <img src="${escapeHtml(image)}" alt="Album art for ${escapeHtml(track.name)}" />
+            <div>
+              <p class="track-title">${escapeHtml(track.name)}</p>
+              <div class="track-meta">${escapeHtml(formatArtists(track))} · ${escapeHtml(track.album?.name || 'Unknown album')} · ${escapeHtml(millisToTime(track.duration_ms))}</div>
+            </div>
+            <div class="track-actions">
+              <button class="tiny primary" data-pick-uri="${escapeHtml(track.uri)}">Pick this song</button>
+              ${previewButton}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDraft() {
+      if (!state.selectedTracks.length) {
+        els.playlistList.innerHTML = '<div class="empty">Your selected songs will appear here.</div>';
+        return;
+      }
+
+      els.playlistList.innerHTML = state.selectedTracks.map((track, index) => `
+        <div class="track">
+          <img src="${escapeHtml(albumImage(track))}" alt="Album art for ${escapeHtml(track.name)}" />
+          <div>
+            <p class="track-title">${index + 1}. ${escapeHtml(track.name)}</p>
+            <div class="track-meta">${escapeHtml(formatArtists(track))} · ${escapeHtml(track.album?.name || 'Unknown album')} · ${escapeHtml(millisToTime(track.duration_ms))}</div>
+          </div>
+          <div class="track-actions">
+            <button class="tiny danger" data-remove-uri="${escapeHtml(track.uri)}">Remove</button>
+            ${track.external_urls?.spotify ? `<a class="tiny secondary" href="${escapeHtml(track.external_urls.spotify)}" target="_blank" rel="noreferrer">Open in Spotify</a>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function createPlaylist() {
+      if (!state.selectedTracks.length) {
+        setStatus(els.createStatus, 'Pick at least one song first.', 'warn');
+        return;
+      }
+
+      const name = els.playlistName.value.trim() || defaultPlaylistName();
+      const description = els.playlistDescription.value.trim();
+      const isPublic = els.playlistVisibility.value === 'public';
+      const uris = state.selectedTracks.map(track => track.uri);
+
+      state.creating = true;
+      setButtonStates();
+      setStatus(els.createStatus, 'Creating playlist in Spotify…', 'ok');
+
+      try {
+        const playlist = await spotifyFetch('/me/playlists', {
+          method: 'POST',
+          body: JSON.stringify({
+            name,
+            description,
+            public: isPublic,
+          }),
+        });
+
+        for (let i = 0; i < uris.length; i += 100) {
+          const chunk = uris.slice(i, i + 100);
+          await spotifyFetch(`/playlists/${playlist.id}/items`, {
+            method: 'POST',
+            body: JSON.stringify({ uris: chunk }),
+          });
+        }
+
+        setStatus(
+          els.createStatus,
+          `Playlist created: <a href="${escapeHtml(playlist.external_urls?.spotify || '#')}" target="_blank" rel="noreferrer">${escapeHtml(playlist.name)}</a>`,
+          'ok'
+        );
+      } catch (err) {
+        setStatus(els.createStatus, err.message, 'error');
+      } finally {
+        state.creating = false;
+        setButtonStates();
+      }
+    }
+
+    function bindEvents() {
+      els.saveSettingsBtn.addEventListener('click', saveSettings);
+      els.signInBtn.addEventListener('click', startAuth);
+      els.signOutBtn.addEventListener('click', clearToken);
+      els.loadBtn.addEventListener('click', loadLikedSongCount);
+      els.newRoundBtn.addEventListener('click', drawCandidates);
+      els.clearDraftBtn.addEventListener('click', clearDraft);
+      els.createPlaylistBtn.addEventListener('click', createPlaylist);
+
+      els.clientId.addEventListener('input', setButtonStates);
+
+      els.candidateList.addEventListener('click', event => {
+        const button = event.target.closest('[data-pick-uri]');
+        if (!button) return;
+        addTrackFromCandidates(button.getAttribute('data-pick-uri'));
+      });
+
+      els.playlistList.addEventListener('click', event => {
+        const button = event.target.closest('[data-remove-uri]');
+        if (!button) return;
+        removeTrack(button.getAttribute('data-remove-uri'));
+      });
+    }
+
+    async function init() {
+      loadSettings();
+      loadStoredToken();
+      bindEvents();
+      renderCandidates();
+      renderDraft();
+      updateStats();
+      setButtonStates();
+
+      if (state.token?.access_token) {
+        setStatus(els.authStatus, 'Signed in with a saved Spotify session.', 'ok');
+      } else {
+        setStatus(els.authStatus, 'Not signed in yet.', 'warn');
+      }
+
+      try {
+        await handleAuthRedirect();
+      } catch (err) {
+        setStatus(els.authStatus, err.message, 'error');
+      }
+
+      setButtonStates();
+    }
+
+    init();
+  </script>
+</body>
+</html>
