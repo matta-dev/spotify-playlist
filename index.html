@@ -368,18 +368,10 @@
     <div class="grid">
       <aside>
         <div class="card">
-          <h2 class="section-title">App settings</h2>
-          <p class="section-text">Use your own Spotify app Client ID. This page works with Spotify's authorisation flow, so no password is needed.</p>
-
-          <div class="row">
-            <label>
-              Spotify Client ID
-              <input id="clientId" type="text" placeholder="Paste your Spotify Client ID" />
-            </label>
-          </div>
+          <h2 class="section-title">Account</h2>
+          <p class="section-text">This page works with Spotify's authorisation flow, so no password is needed.</p>
 
           <div class="controls">
-            <button id="saveSettingsBtn" class="secondary">Save settings</button>
             <button id="signInBtn" class="primary">Sign in with Spotify</button>
             <button id="signOutBtn" class="secondary hidden">Sign out</button>
           </div>
@@ -490,7 +482,6 @@
 
   <script>
     const STORAGE_KEYS = {
-      settings: 'spotify_picker_settings_v1',
       codeVerifier: 'spotify_picker_code_verifier',
       state: 'spotify_picker_oauth_state',
       token: 'spotify_picker_token_v1',
@@ -515,8 +506,6 @@
     };
 
     const els = {
-      clientId: document.getElementById('clientId'),
-      saveSettingsBtn: document.getElementById('saveSettingsBtn'),
       signInBtn: document.getElementById('signInBtn'),
       signOutBtn: document.getElementById('signOutBtn'),
       authStatus: document.getElementById('authStatus'),
@@ -542,27 +531,9 @@
       return `Liked Song Roulette ${now.toISOString().slice(0, 10)}`;
     }
 
-    function loadSettings() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.settings) || '{}');
-        els.clientId.value = saved.clientId || '';
-      } catch {
-      }
-      if (!els.playlistName.value) els.playlistName.value = defaultPlaylistName();
-      if (!els.playlistDescription.value) {
-        els.playlistDescription.value = 'Built by choosing one song from 5 random liked tracks at a time.';
-      }
-    }
-
-    function saveSettings() {
-      const settings = getSettings();
-      localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
-      setStatus(els.authStatus, 'Settings saved locally in this browser.', 'ok');
-    }
-
     function getSettings() {
       return {
-        clientId: els.clientId.value.trim(),
+        clientId: "81f100ab8705440cbc1e499474845419",
         redirectUri: "https://matta-dev.github.io/spotify-playlist/",
       };
     }
@@ -641,11 +612,7 @@
 
     async function startAuth() {
       const { clientId, redirectUri } = getSettings();
-      if (!clientId) {
-        setStatus(els.authStatus, 'Enter a Client ID first.', 'error');
-        return;
-      }
-      saveSettings();
+
       const codeVerifier = randomString(64);
       const stateValue = randomString(24);
       const codeChallenge = await generateCodeChallenge(codeVerifier);
@@ -1074,7 +1041,6 @@
     }
 
     function bindEvents() {
-      els.saveSettingsBtn.addEventListener('click', saveSettings);
       els.signInBtn.addEventListener('click', startAuth);
       els.signOutBtn.addEventListener('click', clearToken);
       els.loadBtn.addEventListener('click', loadLikedSongCount);
@@ -1098,7 +1064,6 @@
     }
 
     async function init() {
-      loadSettings();
       loadStoredToken();
       bindEvents();
       renderCandidates();
